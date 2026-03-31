@@ -3,7 +3,7 @@ name: Build POS Android APK
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch: # Mengizinkan Anda menekan tombol Run secara manual
+  workflow_dispatch: 
 
 jobs:
   build:
@@ -18,21 +18,27 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '17' # Diperlukan untuk build Android modern
+          java-version: '17' 
 
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable' # Otomatis menggunakan Flutter versi terbaru yang cocok dengan Dart 3.4.1
+          # Kita kunci di versi 3.22.2 agar sesuai dengan pubspec.yaml aplikasi ini
+          flutter-version: '3.22.2' 
+          channel: 'stable' 
 
       - name: 📦 Install Dependencies
         run: flutter pub get
 
-      # LANGKAH WAJIB: Karena pubspec.yaml Anda menggunakan freezed & flutter_gen
-      - name: ⚙️ Run Build Runner (Code Generation)
+      # SCRIPT PENYELAMAT: Mengupdate Kotlin & Gradle secara otomatis
+      - name: 🔧 Auto-Fix Android Gradle & Kotlin
+        run: |
+          sed -i "s/ext.kotlin_version = '[0-9.]*'/ext.kotlin_version = '1.9.0'/g" android/build.gradle || true
+          sed -i "s/gradle-[0-9.]*-[a-z]*.zip/gradle-8.3-all.zip/g" android/gradle/wrapper/gradle-wrapper.properties || true
+
+      - name: ⚙️ Run Build Runner
         run: dart run build_runner build --delete-conflicting-outputs
 
-      # Langkah membuat APK (Kita lewati proses analyze agar tidak gagal karena warning)
       - name: 🛠️ Build Release APK
         run: flutter build apk --release
 
