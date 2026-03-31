@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_posresto_app_v2/data/datasources/auth_local_datasource.dart';
 import 'package:flutter_posresto_app_v2/presentation/home/pages/dashboard_page.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,7 +8,6 @@ import '../../core/components/buttons.dart';
 import '../../core/components/custom_text_field.dart';
 import '../../core/components/spaces.dart';
 import '../../core/constants/colors.dart';
-import 'bloc/login/login_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -80,55 +77,21 @@ class _LoginPageState extends State<LoginPage> {
             obscureText: true,
           ),
           const SpaceHeight(24.0),
-          BlocListener<LoginBloc, LoginState>(
-            listener: (context, state) {
-              state.maybeWhen(
-                orElse: () {},
-                success: (authResponseModel) {
-                  AuthLocalDataSource().saveAuthData(authResponseModel);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DashboardPage(),
-                    ),
-                  );
-                },
-                error: (message) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(message),
-                      backgroundColor: AppColors.red,
-                    ),
-                  );
-                },
+          
+          // KODE BYPASS TOTAL: 
+          // Membuang BlocBuilder dan langsung menaruh tombol murni
+          Button.filled(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DashboardPage(),
+                ),
               );
             },
-            child: BlocBuilder<LoginBloc, LoginState>(
-              builder: (context, state) {
-                return state.maybeWhen(
-                  orElse: () {
-                    return Button.filled(
-                      onPressed: () {
-                        // KODE BYPASS: Langsung pindah ke Dashboard!
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const DashboardPage(),
-                          ),
-                        );
-                      },
-                      label: 'Masuk',
-                    );
-                  },
-                  loading: () {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  },
-                );
-              },
-            ),
+            label: 'Masuk',
           ),
+          
         ],
       ),
     );
