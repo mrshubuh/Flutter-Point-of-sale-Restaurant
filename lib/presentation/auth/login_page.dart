@@ -38,13 +38,14 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           const SpaceHeight(80.0),
           Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 130.0),
-              child: SvgPicture.asset(
-                Assets.icons.homeResto.path,
-                width: 100,
-                height: 100,
-                color: AppColors.primary,
-              )),
+            padding: const EdgeInsets.symmetric(horizontal: 130.0),
+            child: SvgPicture.asset(
+              Assets.icons.homeResto.path,
+              width: 100,
+              height: 100,
+              colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
+            ),
+          ),
           const SpaceHeight(24.0),
           const Center(
             child: Text(
@@ -108,12 +109,13 @@ class _LoginPageState extends State<LoginPage> {
                   orElse: () {
                     return Button.filled(
                       onPressed: () {
-                        context.read<LoginBloc>().add(
-                              LoginEvent.login(
-                                email: emailController.text,
-                                password: passwordController.text,
-                              ),
-                            );
+                        // KODE BYPASS: Langsung pindah ke Dashboard!
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DashboardPage(),
+                          ),
+                        );
                       },
                       label: 'Masuk',
                     );
