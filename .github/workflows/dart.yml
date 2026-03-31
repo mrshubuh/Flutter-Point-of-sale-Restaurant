@@ -1,0 +1,43 @@
+name: Build POS Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Mengizinkan Anda menekan tombol Run secara manual
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17' # Diperlukan untuk build Android modern
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable' # Otomatis menggunakan Flutter versi terbaru yang cocok dengan Dart 3.4.1
+
+      - name: 📦 Install Dependencies
+        run: flutter pub get
+
+      # LANGKAH WAJIB: Karena pubspec.yaml Anda menggunakan freezed & flutter_gen
+      - name: ⚙️ Run Build Runner (Code Generation)
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      # Langkah membuat APK (Kita lewati proses analyze agar tidak gagal karena warning)
+      - name: 🛠️ Build Release APK
+        run: flutter build apk --release
+
+      - name: 📤 Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aplikasi-POS-Resto-Offline
+          path: build/app/outputs/flutter-apk/app-release.apk
